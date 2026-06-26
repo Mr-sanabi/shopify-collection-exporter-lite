@@ -26,33 +26,55 @@ def parse_products_from_json(json_data, collection_url, limit=None):
             image_url = ""
 
         variants = product.get("variants", [])
-
-        if variants:
-            first_variant = variants[0]
-            price = first_variant.get("price", "")
-            availability = first_variant.get("available", "")
-            variant_title = first_variant.get("title", "")
-            sku = first_variant.get("sku", "")
-            compare_at_price = first_variant.get("compare_at_price")
-        else:
-            price = ""
-            availability = ""
-
         scraped_at = datetime.now().isoformat(timespec="seconds")
 
-        row = {
-        "product_title": title,
-        "product_url": product_url,
-        "description": description,
-        "price": price,
-        "compare_at_price": compare_at_price,
-        "variant_title": variant_title,
-        "sku": sku,      
-        "image_url": image_url,
-        "availability": availability,
-        "source_collection": collection_url,
-        "scraped_at": scraped_at
-        }
-        rows.append(row)
+        if variants:
+            for variant in variants:
+                price = variant.get("price", "")
+                availability = variant.get("available", "")
+                variant_title = variant.get("title", "")
+                sku = variant.get("sku", "")
+                compare_at_price = variant.get("compare_at_price", "")
+                option1 = variant.get("option1", "")
+                option2 = variant.get("option2", "")
+                option3 = variant.get("option3", "")
 
+                row = {
+                    "product_title": title,
+                    "product_url": product_url,
+                    "description": description,
+                    "price": price,
+                    "compare_at_price": compare_at_price,
+                    "variant_title": variant_title,
+                    "option1": option1,
+                    "option2": option2,
+                    "option3": option3,
+                    "sku": sku,
+                    "image_url": image_url,
+                    "availability": availability,
+                    "source_collection": collection_url,
+                    "scraped_at": scraped_at
+                }
+
+                rows.append(row)
+
+        else:
+            row = {
+                "product_title": title,
+                "product_url": product_url,
+                "description": description,
+                "price": "",
+                "compare_at_price": "",
+                "variant_title": "",
+                "option1": "",
+                "option2": "",
+                "option3": "",
+                "sku": "",
+                "image_url": image_url,
+                "availability": "",
+                "source_collection": collection_url,
+                "scraped_at": scraped_at
+            }
+
+            rows.append(row)
     return rows
