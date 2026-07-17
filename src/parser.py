@@ -4,10 +4,10 @@ from datetime import datetime
 def parse_products_from_json(json_data, collection_url, limit=None):
     rows = []
     products = json_data.get("products", [])
-    if limit != None:
-        products = products[:limit]
-        parsed_url = urlparse(collection_url)
-        store_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    parsed_url = urlparse(collection_url)
+    store_base = f"{parsed_url.scheme}://{parsed_url.netloc}"
+    if limit is not None:
+        products = products[:limit] 
     for product in products:
         title = product.get("title", "")
         handle = product.get("handle", "")
@@ -15,9 +15,15 @@ def parse_products_from_json(json_data, collection_url, limit=None):
         if handle:
             product_url = f"{store_base}/products/{handle}"
         else:
-            product = ""
-        description = product.get("description", "")
+            product_url = ""
         images = product.get("images", [])
+        description = product.get("body_html", "")
+        if not description:
+            description = product.get("description", "")
+
+        if not description:
+            description = ""
+       
 
         if images:
             first_image = images[0]

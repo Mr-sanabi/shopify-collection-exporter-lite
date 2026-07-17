@@ -10,6 +10,5 @@ def scrape_collection(collection_url, limit=None):
         print("JSON endpoint not available")
         return []
 
-    if json_data:
-        rows = parse_products_from_json(json_data, collection_url, limit)
-        return rows
+    rows = parse_products_from_json(json_data, collection_url, limit)
+    return rows

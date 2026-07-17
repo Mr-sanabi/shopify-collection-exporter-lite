@@ -13,14 +13,10 @@ def fetch_page(url):
     try:
         response = requests.get(url, headers=headers, timeout=10)
         response.encoding = "utf-8"
-    except requests.exceptions.RequestException:
-        print("Request error")
+        response.raise_for_status()
+    except requests.exceptions.RequestException as error:
+        print(f"Request error: {error}")
         return None
-
-    if response.status_code != 200:
-        print("Unexpected response status code")
-        return None
-
 
     return response.text
 
@@ -37,14 +33,11 @@ def fetch_json(url):
     }
     try:
         response = requests.get(url, headers=headers, timeout=10)
-
-        if response.status_code != 200:
-            return None
-
+        response.raise_for_status()
         return response.json()
 
-    except requests.exceptions.RequestException:
-        print("Request error")
+    except requests.exceptions.RequestException as error:
+        print(f"Request error: {error}")
         return None
     except ValueError:
         print("Response is not valid JSON")
