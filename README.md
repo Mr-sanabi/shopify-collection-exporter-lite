@@ -1,5 +1,7 @@
 <div align="center">
 
+![Shopify Collection Exporter Lite banner](docs/shopify-collection-exporter-banner.svg)
+
 # Shopify Collection Exporter Lite
 
 **Export selected public Shopify collections to a variant-level CSV dataset.**
