@@ -1,275 +1,205 @@
+<div align="center">
+
+![Shopify Collection Exporter Lite banner](docs/shopify-collection-exporter-banner.svg)
+
 # Shopify Collection Exporter Lite
 
-A Python CLI tool that exports product data from selected Shopify collections/categories into a clean CSV file.
+**Export selected public Shopify collections to a variant-level CSV dataset.**
 
-This project focuses on a common e-commerce workflow: instead of exporting an entire Shopify store, the tool can extract products from one selected collection or from multiple selected collection URLs listed in a `.txt` file. The exported data can be reviewed, cleaned, compared, or prepared for Shopify import workflows.
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Tests](https://img.shields.io/badge/tests-5%20passed-2ea44f)](#tests)
+[![CLI](https://img.shields.io/badge/interface-CLI-0b7285)](#usage)
+
+</div>
+
+## Overview
+
+Shopify Collection Exporter Lite is a small Python CLI for targeted product exports. It reads one collection URL—or a text file containing several collection URLs—loads the public Shopify `products.json` endpoint, expands product variants into individual rows, and writes the combined result to CSV.
+
+This is useful when a full-store export is unnecessary and only selected categories such as sale items, shoes, jackets, or clearance products are needed.
+
+## Workflow
+
+```mermaid
+flowchart LR
+    A["Collection URL(s)"] --> B["Fetch products.json"]
+    B --> C["Parse products"]
+    C --> D["Expand variants"]
+    D --> E["Atomic CSV export"]
+```
 
 ## Features
 
-* Exports product data from a single Shopify collection/category URL
-* Supports multiple collection URLs from a `.txt` file
-* Combines products from multiple selected collections into one CSV
-* Uses Shopify’s public `products.json` endpoint when available
-* Exports each product variant as a separate CSV row
-* Includes product title, URL, description, price, compare-at price, variant title, options, SKU, image URL, availability, source collection, and scrape timestamp
-* Supports an optional `--limit` argument
-* Handles unavailable JSON endpoints without crashing
-* Saves structured CSV output
-* Works as a simple command-line tool
-
-## Why This Project
-
-Many Shopify product export tools export the entire store. In real workflows, the user often needs only selected categories or collections, such as:
-
-* Sale items
-* Clearance products
-* Men’s clothing
-* Women’s shoes
-* Specific product categories
-* Selected collections from multiple stores
-
-This tool is designed as a lightweight first version for exporting products from selected Shopify collections into CSV.
-
-It is especially useful for clothing and footwear stores because product variants such as size, SKU, price, and availability are exported as separate rows.
+| Area | Behavior |
+|---|---|
+| Sources | One collection URL or a text file with multiple collection URLs |
+| Shopify data | Uses the public `/products.json` endpoint |
+| Variants | Writes each product variant as a separate CSV row |
+| Limits | Optional positive product limit applied per collection |
+| Resilience | Handles HTTP, connection, timeout, and invalid JSON failures |
+| Missing data | Uses safe empty values for unavailable handles, descriptions, images, and variant fields |
+| Output safety | Creates parent directories and replaces the destination only after a temporary CSV is written |
+| Verification | Five focused pytest checks cover parsing, failure handling, and storage |
 
 ## Tech Stack
 
-* Python
-* requests
-* csv
-* argparse
-* datetime
-* urllib.parse
+| Tool | Purpose |
+|---|---|
+| Python | CLI and data-processing logic |
+| Requests | HTTP and JSON retrieval |
+| argparse | Command-line interface and input validation |
+| csv | Structured export |
+| pathlib | Output paths and atomic replacement |
+| pytest | Automated tests |
 
 ## Project Structure
 
 ```text
 shopify-collection-exporter-lite/
-  src/
-    main.py
-    fetcher.py
-    parser.py
-    scraper.py
-    storage.py
-    logger_config.py
-
-  data/
-    .gitkeep
-    collections.txt
-
-  README.md
-  requirements.txt
-  .gitignore
+├── data/
+│   └── collections.txt
+├── src/
+│   ├── fetcher.py
+│   ├── main.py
+│   ├── parser.py
+│   ├── scraper.py
+│   └── storage.py
+├── tests/
+│   ├── test_parser.py
+│   ├── test_scraper.py
+│   └── test_storage.py
+├── requirements.txt
+├── requirements-dev.txt
+└── README.md
 ```
 
 ## Installation
 
-Install dependencies:
+Clone the repository and install the runtime dependency:
 
 ```bash
-pip install -r requirements.txt
+git clone https://github.com/Mr-sanabi/shopify-collection-exporter-lite.git
+cd shopify-collection-exporter-lite
+python -m pip install -r requirements.txt
+```
+
+For development and tests:
+
+```bash
+python -m pip install -r requirements-dev.txt
 ```
 
 ## Usage
 
-### Single Collection
+The output CSV path is positional. Exactly one source option is required.
 
-Export products from one selected Shopify collection:
-
-```bash
-python src/main.py data/products.csv --collection-url https://www.allbirds.com/collections/mens --limit 2
-```
-
-The `--limit` argument is optional.
-
-Example without limit:
+### Export one collection
 
 ```bash
-python src/main.py data/products.csv --collection-url https://www.allbirds.com/collections/mens
+python src/main.py data/products.csv \
+  --collection-url "https://store.example/collections/running-shoes"
 ```
 
-### Multiple Collections
-
-Create a `.txt` file with one Shopify collection URL per line.
-
-Example `data/collections.txt`:
-
-```text
-https://www.allbirds.com/collections/mens
-https://www.allbirds.com/collections/womens
-```
-
-Run the exporter:
+Apply a product limit:
 
 ```bash
-python src/main.py data/products.csv --collections-file data/collections.txt --limit 2
+python src/main.py data/products.csv \
+  --collection-url "https://store.example/collections/running-shoes" \
+  --limit 25
 ```
 
-This will export products from all listed collections into one combined CSV file.
+### Export several collections
 
-## CLI Arguments
+Create a UTF-8 text file containing one collection URL per line:
 
 ```text
-output_file
+https://store.example/collections/running-shoes
+https://store.example/collections/jackets
 ```
 
-Path to the CSV file where results will be saved.
+Then run:
+
+```bash
+python src/main.py data/products.csv \
+  --collections-file data/collections.txt \
+  --limit 25
+```
+
+`--limit` counts products per collection, not output rows. A product with multiple variants creates multiple rows.
+
+### CLI reference
 
 ```text
---collection-url
+python src/main.py OUTPUT_FILE
+  (--collection-url URL | --collections-file FILE)
+  [--limit POSITIVE_INTEGER]
 ```
 
-A single Shopify collection/category URL.
+| Argument | Description |
+|---|---|
+| `output_file` | Destination CSV path |
+| `--collection-url` | One Shopify collection URL |
+| `--collections-file` | Text file with one collection URL per line |
+| `--limit` | Optional positive product limit per collection |
 
-```text
---collections-file
-```
+## CSV Schema
 
-Path to a `.txt` file containing multiple Shopify collection URLs.
-
-```text
---limit
-```
-
-Optional product limit per collection. The limit applies to products, not variants.
-
-For example, if `--limit 2` is used and each product has multiple variants, the final CSV may contain more than 2 rows because each variant is exported as a separate row.
-
-## Output Fields
-
-The CSV includes the following columns:
-
-```text
-product_title
-product_url
-description
-price
-compare_at_price
-variant_title
-option1
-option2
-option3
-sku
-image_url
-availability
-source_collection
-scraped_at
-```
+| Column | Description |
+|---|---|
+| `product_title` | Product name |
+| `product_url` | Store product URL built from the product handle |
+| `description` | Shopify `body_html`, with `description` as fallback |
+| `price` | Variant price |
+| `compare_at_price` | Variant comparison price, when available |
+| `variant_title` | Variant name |
+| `option1` | First variant option |
+| `option2` | Second variant option |
+| `option3` | Third variant option |
+| `sku` | Variant SKU |
+| `image_url` | First product image URL |
+| `availability` | Variant availability value |
+| `source_collection` | Collection URL that produced the row |
+| `scraped_at` | Local ISO-formatted extraction timestamp |
 
 ## Example Output
 
 ```csv
 product_title,product_url,description,price,compare_at_price,variant_title,option1,option2,option3,sku,image_url,availability,source_collection,scraped_at
-Men's Tree Runner NZ - Natural White,https://www.allbirds.com/products/mens-tree-runner-nz-natural-white,,100.00,,8,8,,,A11914M8,https://cdn.shopify.com/...,True,https://www.allbirds.com/collections/mens,2026-06-25T10:23:06
-Men's Tree Runner NZ - Natural White,https://www.allbirds.com/products/mens-tree-runner-nz-natural-white,,100.00,,8.5,8.5,,,A11914M85,https://cdn.shopify.com/...,True,https://www.allbirds.com/collections/mens,2026-06-25T10:23:06
+Trail Runner,https://store.example/products/trail-runner,<p>Trail shoe.</p>,79.99,,Size 42,42,,,TRAIL-42,https://cdn.example/trail.jpg,True,https://store.example/collections/running-shoes,2026-07-17T10:30:00
 ```
 
-## Variant Export
+## Tests
 
-Each product variant is exported as a separate CSV row.
+Run the complete suite from the repository root:
 
-For example, if one product has sizes 8, 8.5, 9, and 9.5, the CSV will contain one row for each size. This makes the output more useful for clothing and footwear stores where size, SKU, price, and availability can differ by variant.
-
-The following fields are variant-specific when available:
-
-```text
-price
-compare_at_price
-variant_title
-option1
-option2
-option3
-sku
-availability
+```bash
+python -m pytest -q
 ```
 
-The following fields are shared across variants from the same product:
+Current coverage focuses on:
 
-```text
-product_title
-product_url
-description
-image_url
-source_collection
-scraped_at
-```
+- parsing a collection response without a limit;
+- safe handling of products without a handle;
+- description priority and fallback behavior;
+- returning an empty result when fetching fails;
+- creating nested output directories and writing a readable CSV.
 
-## Multiple Collections Workflow
+## Reliability Notes
 
-The tool supports exporting multiple selected Shopify collections into one CSV.
+CSV output is written to a temporary sibling file first and then moved over the destination. If the write fails before replacement, the existing destination file is not partially overwritten.
 
-Example use case:
+Network requests use a 10-second timeout and `raise_for_status()`. Fetch failures and invalid JSON responses return no records for that collection instead of crashing the full multi-collection run.
 
-```text
-Store A:
-- Sale collection
-- Clearance collection
+## Limitations
 
-Store B:
-- Men's jackets collection
-- Women's shoes collection
-```
+- Only public Shopify collection JSON endpoints are supported.
+- Stores may disable, restrict, or customize access to `products.json`.
+- The exporter performs one endpoint request per collection and does not implement Shopify pagination.
+- Overlapping collections are not deduplicated.
+- Only the first product image is exported.
+- The output is a general analysis CSV, not Shopify's official import template.
+- The tool does not bypass authentication, CAPTCHAs, rate limits, or anti-bot systems.
 
-Instead of exporting an entire store, the user can provide only the selected collection URLs in `data/collections.txt`.
+## Responsible Use
 
-The exporter will process each collection URL and combine all product variant rows into a single CSV.
-
-## Notes
-
-Some fields may be empty depending on what the Shopify store exposes through its public product data.
-
-For example:
-
-* `description` may be empty if the store does not expose `body_html`
-* `sku` may be empty if product variants do not include SKU values
-* `compare_at_price` may be empty if the item is not discounted
-* `option2` and `option3` may be empty if the product only has one option, such as size
-* `availability` depends on the data exposed by the store
-
-## Current Limitations
-
-This is a lightweight MVP version.
-
-It currently:
-
-* Uses the public Shopify JSON endpoint
-* Exports all product variants as separate rows
-* Uses the first product image as the main image URL
-* Does not yet format output directly into Shopify’s official import CSV template
-* Does not include advanced inventory monitoring
-* Does not compare inventory between multiple exports
-* Does not bypass anti-bot systems, captchas, private APIs, or login-protected stores
-
-## Possible Improvements
-
-Future versions could include:
-
-* Shopify import-ready CSV formatting
-* Inventory comparison between multiple exports
-* Product handle-based change tracking
-* Support for multiple stores with store labels
-* HTML fallback if `products.json` is unavailable
-* Exporting multiple images per product
-* Cleaner formatting for HTML descriptions
-* Separate inventory history reports
-* Deduplication across overlapping collections
-
-## What I Practiced
-
-* Building a Shopify-specific data extraction workflow
-* Working with public Shopify JSON endpoints
-* Parsing nested product, image, and variant data
-* Exporting all variants as separate rows
-* Building product URLs from Shopify handles
-* Reading multiple collection URLs from a `.txt` file
-* Combining results from multiple selected collections
-* Exporting structured CSV files
-* Adding optional CLI arguments with `argparse`
-* Handling missing fields safely
-* Structuring a Python project into clean modules
-
-## Compliance Note
-
-This tool is intended for extracting publicly available product data from accessible Shopify collection pages.
-
-It does not bypass logins, captchas, private APIs, or restricted access systems. Use it only on websites where automated access is allowed and always respect each website’s terms of service and robots.txt.
+Use the exporter only with publicly accessible data and where automated access is permitted. Respect site terms, robots policies, rate limits, and applicable data-use rules.
