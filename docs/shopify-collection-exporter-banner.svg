@@ -31,14 +31,14 @@
       <rect width="205" height="122" rx="22" fill="#102234" stroke="#2f9df4" stroke-width="2"/>
       <text x="103" y="49" text-anchor="middle" fill="#4daeff" font-size="26" font-weight="800">COLLECTIONS</text>
       <text x="103" y="91" text-anchor="middle" fill="#d7e4ee" font-size="23">URL or file</text>
-      <text x="280" y="75" fill="#7d91a2" font-size="54">→</text>
-      <rect x="337" width="155" height="122" rx="22" fill="#0b291d" stroke="#27b957" stroke-width="2"/>
-      <text x="415" y="49" text-anchor="middle" fill="#39cd6c" font-size="27" font-weight="800">PARSE</text>
-      <text x="415" y="91" text-anchor="middle" fill="#d7e4ee" font-size="23">14 fields</text>
-      <text x="493" y="75" fill="#7d91a2" font-size="54">→</text>
-      <rect x="550" width="134" height="122" rx="22" fill="#2a2012" stroke="#d98225" stroke-width="2"/>
-      <text x="617" y="49" text-anchor="middle" fill="#f0a13c" font-size="26" font-weight="800">EXPORT</text>
-      <text x="617" y="91" text-anchor="middle" fill="#d7e4ee" font-size="23">CSV</text>
+      <text x="250" y="75" fill="#7d91a2" font-size="54">→</text>
+      <rect x="307" width="155" height="122" rx="22" fill="#0b291d" stroke="#27b957" stroke-width="2"/>
+      <text x="385" y="49" text-anchor="middle" fill="#39cd6c" font-size="27" font-weight="800">PARSE</text>
+      <text x="385" y="91" text-anchor="middle" fill="#d7e4ee" font-size="23">14 fields</text>
+      <text x="470" y="75" fill="#7d91a2" font-size="54">→</text>
+      <rect x="518" width="134" height="122" rx="22" fill="#2a2012" stroke="#d98225" stroke-width="2"/>
+      <text x="585" y="49" text-anchor="middle" fill="#f0a13c" font-size="26" font-weight="800">EXPORT</text>
+      <text x="585" y="91" text-anchor="middle" fill="#d7e4ee" font-size="23">CSV</text>
     </g>
     <g transform="translate(52 226)">
       <rect width="652" height="165" rx="24" fill="#070d18" stroke="#304252" stroke-width="2"/>
