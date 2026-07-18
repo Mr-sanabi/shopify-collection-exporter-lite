@@ -13,7 +13,7 @@
 <rect x="45" y="58" width="1894" height="9" rx="5" fill="url(#accent)"/>
 <g font-family="Inter,Segoe UI,Arial,sans-serif">
   <text x="118" y="221" fill="#88a2b9" font-size="31" font-weight="700" letter-spacing="7">PYTHON E-COMMERCE DATA</text>
-  <text x="118" y="328" fill="#f7fafc" font-size="68" font-weight="800">Shopify Collection Exporter Lite</text>
+  <text x="118" y="328" fill="#f7fafc" font-size="60" font-weight="800">Shopify Collection Exporter Lite</text>
   <text x="118" y="411" fill="#91aac0" font-size="34">Selected Shopify collections exported to variant-level CSV.</text>
 
   <g transform="translate(118 468)">
